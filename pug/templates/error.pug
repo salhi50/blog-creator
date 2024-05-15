@@ -1,0 +1,10 @@
+extends ../layout
+
+block main
+  .display-1.mb-3 :(
+  if status == 404
+    h1 404 Not found
+  else if status >= 400 && status < 500
+    h1 4xx Client error
+  else
+    h1 5xx Server error

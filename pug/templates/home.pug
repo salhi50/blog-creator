@@ -1,0 +1,57 @@
+extends ../layout
+
+block append scripts
+  +jqueryScriptTag()
+  script(src="/scripts/home.js" defer)
+
+block main
+  h1.fs-3.mb-3 All blog posts
+  form.mb-3(action="/" method="get")
+    .d-flex.mb-3
+      input(type="hidden" name="page" value="1")
+      input.form-control.flex-grow-1.me-2(name="search" type="search" placeholder="Search..." value=params.search || "")
+      select.form-select.w-auto(name="sort")
+        option(value="" selected disabled) Sort
+        option(value="oldest" selected=(params.sort === "oldest")) Oldest first
+        option(value="newest" selected=(params.sort === "newest")) Newest first
+    details(open=params.authorUsername || (params.tags && params.tags.length > 0))
+      summary.mb-3 Filter by
+      +textfield("Author username")(name="authorUsername" value=params.authorUsername || "")
+      +tagsField(params.tags)
+    button.btn.btn-primary(type="submit") Search
+  if blogs.length <= 0
+    .alert.alert-secondary No blogs available
+  else
+    small.d-block.mb-3.text-muted #{blogsCount} Result(s)
+    .row.row-cols-1.row-cols-md-2.row-cols-lg-3.g-3
+      each blog in blogs
+        .col: .card.h-100
+          a(href=`/blog/${blog._id}`)
+            img.card-img-top.object-fit-cover(src=(blog.thumbnailSrc || "/static/images/no-image.jpg") height=250 alt="Blog thumbnail")
+          .card-body
+            a.fs-5.card-title(href=`/blog/${blog._id}`) #{blog.title}
+            if blog.description
+              p.card-text.mt-2 #{blog.description}
+            a(href=`/author/${blog.author.username}`).text-black.text-decoration-none.d-block.mt-2
+              +authorAvatar(blog.author, "small")
+              span.ms-2.d-inline-block #{blog.author.username}
+          .card-footer
+            +tagsList(blog.tags)
+            small.card-text.text-secondary.d-block Last updated #{blog.updatedAt.toLocaleDateString()}
+    if pagination.length >= 0
+      - const numPages = pagination[pagination.length - 1];
+      ul.pagination.mt-4.flex-wrap
+        li.page-item: button.page-link(type="button")&attributes(params.page === 1 ? {
+          disabled: true,
+          class: "disabled"
+        }: {'data-page': params.page - 1}) Previous
+        each p in pagination
+          li.page-item
+            if p === null
+              button.page-link(role="none" class="pe-none") ...
+            else
+              button.page-link(type="button")&attributes(params.page === p ? {class: "active pe-none"}: {'data-page': p}) #{p}
+        li.page-item: button.page-link(type="button")&attributes(params.page === numPages ? {
+          disabled: true,
+          class: "disabled"
+        } : {'data-page': params.page + 1}) Next

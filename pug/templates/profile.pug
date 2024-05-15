@@ -1,0 +1,47 @@
+extends ../layout
+
+block append scripts
+  if activeTab === "settings"
+    +jqueryScriptTag()
+    script(src="/scripts/utils.js" defer)
+    script(src="/scripts/profile-settings.js" defer)
+  
+block main
+  if author && author._id.toString() === profile._id.toString()
+    - const basePath = `/author/${author.username}`;
+    ul.nav.nav-underline.mb-3
+     li.nav-item: a.nav-link(href=`${basePath}/` class=(activeTab === "home" && "active")) Home
+     li.nav-item: a.nav-link(href=`${basePath}/settings` class=(activeTab === "settings" && "active")) Settings
+    case activeTab
+      when "home"
+        +authorProfile(profile)
+      when "settings"
+        .row.g-3.mb-3
+          .col-12.col-md-4
+            form#change-picture.d-flex.flex-column.align-items-center.box.h-100(action=`${basePath}/change-picture` method="post" enctype="multipart/form-data")
+              +authorAvatar(author, "large").mb-4#initial-picture
+              +avatar("large")#preview-picture.mb-4(style={display: "none"})
+              +inputfile("Change picture")(id="picture" name="picture" accept="image/jpeg,image/png,image/webp")
+              #preview-control.mt-3(style={display: "none"})
+                button.btn.btn-secondary.me-3#cancel-btn(type="button") Cancel
+                button.btn.btn-primary(type="submit") Update
+
+          .col-12.col-md-8
+            form#change-password.box.h-100(action=`${basePath}/change-password` method="post")
+              +passwordForm(false)
+              button.btn.btn-primary(type="submit") Update
+            
+          form#change-username.box.mb-3(action=`${basePath}/change-username` method="post")
+            +usernameField("Change username")(value=author.username)
+            button.btn.btn-primary(type="submit") Update
+          
+          form.box.mb-3(action=`${basePath}/change-details` method="post")
+            +textfield("About", true)(name="about" maxlength=500 value=author.about || "")
+            +textfield("Instragram")(name="instagram" type="url" value=author.socialMediaLinks && author.socialMediaLinks.instagram || "")
+            +textfield("Facebook")(name="facebook" type="url" value=author.socialMediaLinks && author.socialMediaLinks.facebook || "")
+            +textfield("X(twitter)")(name="x" type="url" value=author.socialMediaLinks && author.socialMediaLinks.x || "")
+            +textfield("Linkedin")(name="linkedin" type="url" value=author.socialMediaLinks && author.socialMediaLinks.linkedin || "")
+            button.btn.btn-primary(type="submit") Update
+
+  else
+    +authorProfile(profile)

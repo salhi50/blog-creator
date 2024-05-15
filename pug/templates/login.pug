@@ -1,0 +1,8 @@
+extends ../layout
+
+block main
+  form(action="/login" method="post" style={'max-width': "500px"}).mx-auto
+    h1.fs-3.mb-3 Login to your account
+    +usernameField("Username")(required)
+    +textfield("Password")(type="password" name="password" required)
+    button.btn.btn-primary(type="submit") Login

@@ -1,0 +1,16 @@
+extends ../layout
+
+//-Forms endpoints
+  : /signup
+
+block append scripts
+  +jqueryScriptTag()
+  script(src="/scripts/utils.js" defer)
+  script(src="/scripts/signup.js" defer)
+
+block main
+  form(action="/signup" method="post" style={'max-width': "500px"}).mx-auto
+    h1.fs-3.mb-3 Create an account
+    +usernameField("Choose a username")
+    +passwordForm(true)
+    button.btn.btn-primary(type="submit") Create

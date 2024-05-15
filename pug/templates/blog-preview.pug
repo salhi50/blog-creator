@@ -1,0 +1,44 @@
+extends ../layout
+
+block append scripts
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer)
+  +jqueryScriptTag()
+  script(src="/scripts/blog-preview.js" defer)
+
+block append stylesheets
+  link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/a11y-dark.min.css")
+
+block main
+  .row
+    .col-12.col-lg-9: .box.mb-3
+      h1 #{blog.title}
+      if blog.description
+        p.fs-5 #{blog.description}
+      if author && blog.author._id.toString() == author._id.toString()
+        .mb-3
+          a.btn.btn-sm.btn-outline-dark(href=`/blog/${blog._id}/update`) Edit
+          a.btn.btn-sm.btn-outline-danger.ms-2(href=`/blog/${blog._id}/delete`) Delete
+      if blog.thumbnailSrc
+        img.w-100.h-auto(alt="Blog thumbnail" src=blog.thumbnailSrc)
+      details.d-block.d-lg-none.mt-3(open)
+        summary Table of contents
+        nav: ul.my-2.list-unstyled.ps-3#mobile-tcontent
+      #body.mt-3 !{blog.bodyHTML}
+      .mt-4.border-top.pt-3
+        small.text-secondary.d-block.mb-1
+          | Created at #{blog.createdAt.toLocaleDateString()} —
+          | Updated at #{blog.updatedAt.toLocaleDateString()}
+        +tagsList(blog.tags)
+    .col-3.d-none.d-lg-block
+      details(open style={top: "1rem"}).position-sticky
+        summary Table of contents
+        nav: ul.my-2.list-unstyled.ps-3#desktop-tcontent
+  .col-12.col-lg-9: .box
+    h5.mb-3 About the author
+    .d-flex.justify-content-between.flex-wrap
+      div
+        a(href=`/author/${blog.author.username}`)
+          +authorAvatar(blog.author, "medium")
+        div.fw-medium.mt-2 #{blog.author.username}
+      +socialMediaLinks(blog.author.socialMediaLinks)
+    p.mb-0.mt-1 #{blog.author.about}

@@ -1,0 +1,80 @@
+mixin textfield(label, multiline = false)
+  .mb-3
+    label.form-label.fw-medium(for=attributes.id) #{label}
+    if multiline
+      textarea.form-control&attributes(attributes) !{attributes.value}
+    else
+      input.form-control(type="text")&attributes(attributes)
+    .invalid-feedback
+
+mixin formcheck(label)
+  .form-check.mb-3
+    label.form-check-label(for=attributes.id) #{label}
+    input.form-check-input(type="checkbox")&attributes(attributes)
+
+mixin usernameField(label)
+  +textfield(label)#username(
+    name="username"
+    autocapitalize="off"
+  )&attributes(attributes)
+
+mixin passwordForm(isNew = false)
+  if !isNew
+    +textfield("Old password")(type="password" id="old-password" name="oldPassword")
+  .mb-3
+    .form-label.fw-medium #{isNew ? "Set up a password" : "Current Password"}
+    .input-group
+      input.form-control(type="password" id="password" name="password" placeholder="Password")
+      input.form-control(type="password" id="confirm-password" placeholder="Confirm")
+    .invalid-feedback
+  +formcheck("Show password")(id="show-password")
+
+mixin jqueryScriptTag
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer)
+
+mixin avatar(size = "large")
+  - let dim;
+  case size
+    when "large": - dim = 128;
+    when "medium": - dim = 64;
+    default: - dim = 24;
+  img.object-fit-cover.rounded-circle.flex-shrink-0(
+    width=dim
+    height=dim
+  )&attributes(attributes)
+
+mixin socialMediaLinks(links = {})
+  if links
+    .align-self-start
+      each item, i in ["facebook", "instagram", "linkedin", "x"]
+        if links[item]
+          a(href=links[item] title=item class=i > 0 && "ms-3")
+            img(src=`/static/images/${item}.svg` alt=`${item} logo` width=24 height=24)
+
+
+mixin authorProfile(author)
+  .d-flex.justify-content-between.flex-wrap
+    +authorAvatar(author, "large")
+    +socialMediaLinks(author.socialMediaLinks)
+  h1.fs-3.my-2 #{author.username}
+  small.mb-1.d-block.text-secondary Joined #{author.joinedAt.toLocaleDateString()}
+  p.fs-5.mb-0 #{author.about}
+
+mixin authorAvatar(author, size)
+  +avatar(size)(
+    src=author.pictureSrc || "/static/images/default-avatar.png"
+    alt="Avatar"
+  )&attributes(attributes)
+
+mixin inputfile(label)
+  div
+    input.visually-hidden(type="file")&attributes(attributes)
+    label.btn.btn-outline-secondary(role="button" for=attributes.id) #{label}
+
+mixin tagsField(tags = [])
+  +textfield("Tags separated by comma(,)")(name="tags" value=tags.join(','))&attributes(attributes)
+
+mixin tagsList(tags = [])
+  if tags.length > 0
+    .mb-1: each tag in tags
+      a.small.me-2.mb-1.link-secondary(href=`/?tags=${tag}`) ##{tag}

@@ -1,0 +1,35 @@
+extends ../layout
+
+block append scripts
+  +jqueryScriptTag()
+  script(src="/scripts/utils.js" defer)
+  script(src="/scripts/blog-editor.js" defer)
+
+mixin thumbnailImg
+  img.mb-3(style={'max-width': "400px"} alt="blog thumbnail")&attributes(attributes)
+
+block main
+  if isNew
+    - blog = {}
+  h1.fs-3.mb-3 #{isNew ? "Create New blog" : "Edit blog"}
+  form(method="post" action=(isNew ? "/blog/new" : `/blog/${blog._id}/update`) enctype="multipart/form-data")
+    fieldset.mb-4.box
+      legend Details
+      +textfield("Title")(name="title" required maxlength=50 value=blog.title || "")
+      +tagsField(blog.tags || [])(placeholder="Max 5 tags")
+      +textfield("Description", true)(name="description" maxlength=100 value=blog.description || "")
+    fieldset.mb-4.box
+      legend Thumbnail
+      #preview-thumbnail(style={display: "none"})
+        +thumbnailImg()
+        div
+          button.btn.btn-secondary.me-3#cancel-btn(type="button") Cancel
+          button.btn.btn-primary#change-btn(type="button") Change
+      #thumbnail-form
+        if blog.thumbnailSrc
+          +thumbnailImg()(src=blog.thumbnailSrc)
+        +inputfile(blog.thumbnailSrc ? "Change" : "Upload")(id="thumbnail" name="thumbnail" accept="image/png,image/jpeg,image/webp")
+    fieldset.mb-4.box
+      legend Body
+      +textfield("Markdown", true)(name="bodyMarkdown" rows=10 required maxlength=100000 value=blog.bodyMarkdown || "")
+    button.btn.btn-primary(type="submit") #{isNew ? "Create" : "Update"}
